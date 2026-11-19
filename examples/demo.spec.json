@@ -1,0 +1,91 @@
+{
+  "title": "build_walkthrough.py 源码导读",
+  "subtitle": "CLI 入口 → 校验与源码读取 → 自包含 HTML 注入",
+  "nodes": [
+    {
+      "id": "cli_entry",
+      "title": "解析 CLI 参数与路径",
+      "type": "entry",
+      "col": 0,
+      "row": 0,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [126, 142],
+      "summary": "解析 --spec、--repo、--output 和可选的 --template 参数，并将它们统一解析为绝对路径。",
+      "why": "提前 resolve() 所有路径，避免后续工作目录切换或相对路径拼接导致的歧义。",
+      "symbols": ["main()", "argparse.ArgumentParser", "Path.resolve()"],
+      "verify": "检查 --template 默认值是否指向与脚本同目录的 template.html。"
+    },
+    {
+      "id": "load_spec",
+      "title": "读取并解析 Spec JSON",
+      "type": "io",
+      "col": 0,
+      "row": 1,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [17, 23],
+      "summary": "读取 walkthrough.spec.json 文件并解析为 Python 字典，失败时抛出带上下文的 ValueError。",
+      "why": "集中处理 JSON 解析异常，确保最终统一在入口处以标准 JSON 错误格式输出到 stderr。",
+      "symbols": ["load_json()", "json.loads()"],
+      "verify": "确认编码固定为 utf-8，防止中文注释或说明在部分系统下乱码。"
+    },
+    {
+      "id": "validate_nodes",
+      "title": "校验节点与防越界读取源码",
+      "type": "decision",
+      "col": 0,
+      "row": 2,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [36, 75],
+      "summary": "遍历每个节点，检查 id 唯一性、节点类型合法性，并从真实仓库读取对应源码文件。",
+      "why": "由脚本读取真实文件而非让 AI 直接复制源码到 HTML，彻底避免源码幻觉、截断或行号错位。",
+      "symbols": ["validate_and_collect_files()", "resolve_repo_file()", "VALID_TYPES"],
+      "verify": "留意第 25-33 行的 resolve_repo_file：通过 parents 检查防止路径穿越出 --repo 根目录。"
+    },
+    {
+      "id": "check_lines",
+      "title": "校验行号区间与边引用",
+      "type": "process",
+      "col": 1,
+      "row": 2,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [76, 102],
+      "summary": "验证每个节点的 lines [start, end] 是否落在文件真实总行数内，并检查所有边的 from/to 节点是否存在。",
+      "why": "把引用错误拦截在构建期，避免生成的 HTML 打开后出现空高亮或断线。",
+      "symbols": ["totalLines", "node_ids", "edges"],
+      "verify": "确认 start >= 1 且 end >= start 且 end <= total。"
+    },
+    {
+      "id": "build_html",
+      "title": "安全注入数据生成 HTML",
+      "type": "process",
+      "col": 0,
+      "row": 3,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [105, 124],
+      "summary": "组装最终 payload，将 '</' 转义为 '<\\/' 后注入 template.html 的占位符。",
+      "why": "如果源码本身包含 '</script>' 字符串，直接内联到 <script> 标签会导致 HTML 提前闭合。",
+      "symbols": ["build_html()", "html.escape()", "safe_json"],
+      "verify": "注意第 118 行的 replace('</', '<\\/') 与第 119 行的 title HTML 转义。"
+    },
+    {
+      "id": "write_output",
+      "title": "写入 HTML 并输出摘要",
+      "type": "exit",
+      "col": 0,
+      "row": 4,
+      "file": "scripts/build_walkthrough.py",
+      "lines": [147, 158],
+      "summary": "自动创建输出目录并写入独立 HTML 文件，最后向 stdout 打印结构化构建摘要。",
+      "why": "返回简洁的 JSON 摘要，方便 Agent 或 CI 流水线直接确认产物路径与节点统计。",
+      "symbols": ["output_path.write_text()", "summary"],
+      "verify": "确认 parent.mkdir(parents=True, exist_ok=True) 已在写入前执行。"
+    }
+  ],
+  "edges": [
+    { "from": "cli_entry", "to": "load_spec" },
+    { "from": "load_spec", "to": "validate_nodes" },
+    { "from": "validate_nodes", "to": "check_lines", "label": "逐节点校验" },
+    { "from": "check_lines", "to": "build_html", "label": "全部通过" },
+    { "from": "build_html", "to": "write_output" }
+  ]
+}

@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>__PAGE_TITLE__</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elevated: #161b22;
+      --bg-subtle: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-soft: rgba(88, 166, 255, 0.14);
+      --accent-border: rgba(88, 166, 255, 0.55);
+      --green: #3fb950;
+      --green-soft: rgba(63, 185, 80, 0.14);
+      --amber: #d29922;
+      --amber-soft: rgba(210, 153, 34, 0.14);
+      --purple: #bc8cff;
+      --purple-soft: rgba(188, 140, 255, 0.14);
+      --rose: #ff7b72;
+      --rose-soft: rgba(255, 123, 114, 0.14);
+      --code-hl: rgba(88, 166, 255, 0.16);
+      --code-hl-border: #58a6ff;
+      --tok-kw: #ff7b72;
+      --tok-str: #a5d6ff;
+      --tok-com: #8b949e;
+      --tok-num: #79c0ff;
+      --tok-fn: #d2a8ff;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f6f8fa;
+      --bg-elevated: #ffffff;
+      --bg-subtle: #f0f3f6;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --text-muted: #656d76;
+      --accent: #0969da;
+      --accent-soft: rgba(9, 105, 218, 0.10);
+      --accent-border: rgba(9, 105, 218, 0.5);
+      --green: #1a7f37;
+      --green-soft: rgba(26, 127, 55, 0.10);
+      --amber: #9a6700;
+      --amber-soft: rgba(154, 103, 0, 0.10);
+      --purple: #8250df;
+      --purple-soft: rgba(130, 80, 223, 0.10);
+      --rose: #cf222e;
+      --rose-soft: rgba(207, 34, 46, 0.10);
+      --code-hl: rgba(9, 105, 218, 0.11);
+      --code-hl-border: #0969da;
+      --tok-kw: #cf222e;
+      --tok-str: #0a3069;
+      --tok-com: #6e7781;
+      --tok-num: #0550ae;
+      --tok-fn: #8250df;
+      --shadow: 0 8px 24px rgba(31, 35, 40, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Header */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    button.btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    button.btn:hover:not(:disabled) {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+    }
+
+    button.btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .step-counter {
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 68px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Main Split Pane */
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      min-width: 260px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .pane-left {
+      width: 48%;
+      background: var(--bg);
+    }
+
+    .pane-right {
+      flex: 1;
+      background: var(--bg);
+    }
+
+    .resizer-v {
+      width: 5px;
+      cursor: col-resize;
+      background: var(--border);
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .resizer-v:hover, .resizer-v.dragging {
+      background: var(--accent);
+    }
+
+    /* Code Pane */
+    .file-tabs {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px 0;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    .file-tab {
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .file-tab:hover {
+      color: var(--text);
+      background: var(--bg-subtle);
+    }
+
+    .file-tab.active {
+      color: var(--text);
+      background: var(--bg);
+      border-color: var(--border);
+      font-weight: 600;
+    }
+
+    .code-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .code-scroll {
+      flex: 1;
+      overflow: auto;
+      padding: 8px 0;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .code-line {
+      display: flex;
+      padding: 0 14px 0 0;
+      border-left: 3px solid transparent;
+      transition: background 0.15s;
+    }
+
+    .code-line.has-node {
+      cursor: pointer;
+    }
+
+    .code-line.has-node:hover {
+      background: var(--bg-subtle);
+    }
+
+    .code-line.active {
+      background: var(--code-hl);
+      border-left-color: var(--code-hl-border);
+    }
+
+    .line-num {
+      width: 52px;
+      padding-right: 12px;
+      text-align: right;
+      color: var(--text-muted);
+      user-select: none;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .code-line.active .line-num {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .line-text {
+      white-space: pre;
+      flex: 1;
+      tab-size: 4;
+    }
+
+    .tok-kw { color: var(--tok-kw); font-weight: 500; }
+    .tok-str { color: var(--tok-str); }
+    .tok-com { color: var(--tok-com); font-style: italic; }
+    .tok-num { color: var(--tok-num); }
+    .tok-fn { color: var(--tok-fn); }
+
+    /* Right Pane: Flowchart + Detail */
+    .flow-wrap {
+      position: relative;
+      height: 56%;
+      min-height: 200px;
+      background:
+        radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+      background-size: 20px 20px;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .flow-toolbar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+
+    .flow-hint {
+      position: absolute;
+      left: 12px;
+      bottom: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    svg#flowSvg {
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    svg#flowSvg.panning {
+      cursor: grabbing;
+    }
+
+    .edge-path {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 2;
+      transition: stroke 0.15s, stroke-width 0.15s;
+    }
+
+    .edge-path.active {
+      stroke: var(--accent);
+      stroke-width: 2.5;
+    }
+
+    .edge-label-bg {
+      fill: var(--bg-elevated);
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    .edge-label {
+      fill: var(--text-muted);
+      font-size: 11px;
+      font-family: var(--font-sans);
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .node-group {
+      cursor: pointer;
+    }
+
+    .node-card {
+      fill: var(--bg-elevated);
+      stroke: var(--border);
+      stroke-width: 1.5;
+      rx: 10;
+      ry: 10;
+      transition: stroke 0.15s, filter 0.15s;
+    }
+
+    .node-group:hover .node-card {
+      stroke: var(--accent-border);
+    }
+
+    .node-group.active .node-card {
+      stroke: var(--accent);
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 8px var(--accent-soft));
+    }
+
+    .node-title {
+      fill: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+    }
+
+    .node-sub {
+      fill: var(--text-muted);
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+    }
+
+    .node-badge-text {
+      font-size: 10.5px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+    }
+
+    /* Explanation Panel */
+    .detail-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px 20px;
+      background: var(--bg-elevated);
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .detail-loc {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      cursor: pointer;
+    }
+
+    .detail-section {
+      margin-top: 12px;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .detail-body {
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .verify-box {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--amber-soft);
+      border: 1px solid rgba(210, 153, 34, 0.35);
+      font-size: 13px;
+    }
+
+    .verify-box strong {
+      color: var(--amber);
+    }
+
+    @media (max-width: 900px) {
+      .workspace { flex-direction: column; }
+      .pane-left { width: 100% !important; height: 45%; }
+      .resizer-v { display: none; }
+      .flow-wrap { height: 52%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-badge">Code Walkthrough</span>
+        <span class="brand-title" id="appTitle"></span>
+        <span class="brand-sub" id="appSub"></span>
+      </div>
+      <div class="controls">
+        <button class="btn" id="prevBtn" title="上一步 (← / k)">← 上一步</button>
+        <span class="step-counter" id="stepCounter">0 / 0</span>
+        <button class="btn" id="nextBtn" title="下一步 (→ / j)">下一步 →</button>
+        <button class="btn" id="themeBtn" title="切换深浅主题">🌓 主题</button>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <section class="pane pane-left" id="leftPane">
+        <div class="file-tabs" id="fileTabs"></div>
+        <div class="code-meta">
+          <span id="activeFilePath">-</span>
+          <span id="activeLineRange">点击右侧流程节点，自动定位源码</span>
+        </div>
+        <div class="code-scroll" id="codeScroll"></div>
+      </section>
+
+      <div class="resizer-v" id="resizerV" title="拖动调整左右宽度"></div>
+
+      <section class="pane pane-right">
+        <div class="flow-wrap" id="flowWrap">
+          <div class="flow-toolbar">
+            <button class="btn" id="zoomInBtn" title="放大">+</button>
+            <button class="btn" id="zoomOutBtn" title="缩小">−</button>
+            <button class="btn" id="fitBtn" title="适配画布">适配视图</button>
+          </div>
+          <svg id="flowSvg">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--border)" />
+              </marker>
+              <marker id="arrowActive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--accent)" />
+              </marker>
+            </defs>
+            <g id="viewport"></g>
+          </svg>
+          <div class="flow-hint">滚轮缩放 · 拖拽平移 · 点击节点联动源码 · 方向键 ←/→ 步进</div>
+        </div>
+
+        <div class="detail-wrap" id="detailWrap"></div>
+      </section>
+    </div>
+  </div>
+
+  <script id="walkthrough-data" type="application/json">__WALKTHROUGH_DATA__</script>
+  <script>
+    (function () {
+      const DATA = JSON.parse(document.getElementById("walkthrough-data").textContent);
+
+      // Theme init
+      const root = document.documentElement;
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.setAttribute("data-theme", prefersDark ? "dark" : "light");
+
+      document.getElementById("themeBtn").addEventListener("click", () => {
+        const cur = root.getAttribute("data-theme");
+        root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+      });
+
+      // Header
+      document.getElementById("appTitle").textContent = DATA.title || "Source Walkthrough";
+      document.getElementById("appSub").textContent = DATA.subtitle || "";
+
+      const nodes = DATA.nodes || [];
+      const edges = DATA.edges || [];
+      const files = DATA.files || {};
+      const fileKeys = Object.keys(files);
+
+      let activeNodeIndex = 0;
+      let activeFile = nodes[0]?.file || fileKeys[0] || "";
+
+      // Lightweight single-pass syntax highlighter (HTML-safe)
+      const TOK_RE = /(#[^\n]*|\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b(?:def|class|return|if|elif|else|for|while|in|not|and|or|import|from|as|with|try|except|finally|raise|async|await|function|const|let|var|export|default|switch|case|break|continue|new|this|typeof|interface|type|struct|impl|fn|pub|use|mod|match|func|package|go|defer|select|true|false|null|None|True|False|undefined)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*(?=\s*\())/g;
+
+      function escHtml(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      function highlightLine(line) {
+        let out = "";
+        let last = 0;
+        TOK_RE.lastIndex = 0;
+        let m;
+        while ((m = TOK_RE.exec(line)) !== null) {
+          if (m.index > last) {
+            out += escHtml(line.slice(last, m.index));
+          }
+          const tok = m[0];
+          let cls = "tok-fn";
+          if (tok.startsWith("#") || tok.startsWith("//") || tok.startsWith("/*")) cls = "tok-com";
+          else if (tok.startsWith('"') || tok.startsWith("'") || tok.startsWith("`")) cls = "tok-str";
+          else if (/^\d/.test(tok)) cls = "tok-num";
+          else if (!/\($/.test(tok) && !line.slice(m.index + tok.length).match(/^\s*\(/)) cls = "tok-kw";
+          else if (/^(if|for|while|return|switch|catch)$/.test(tok)) cls = "tok-kw";
+          out += `<span class="${cls}">${escHtml(tok)}</span>`;
+          last = m.index + tok.length;
+        }
+        if (last < line.length) out += escHtml(line.slice(last));
+        return out || " ";
+      }
+
+      // Render file tabs
+      const fileTabsEl = document.getElementById("fileTabs");
+      function renderTabs() {
+        fileTabsEl.innerHTML = "";
+        fileKeys.forEach((fpath) => {
+          const btn = document.createElement("button");
+          btn.className = "file-tab" + (fpath === activeFile ? " active" : "");
+          btn.textContent = fpath.split("/").pop();
+          btn.title = fpath;
+          btn.addEventListener("click", () => {
+            activeFile = fpath;
+            renderTabs();
+            renderCode();
+          });
+          fileTabsEl.appendChild(btn);
+        });
+      }
+
+      // Find node matching a file + line (reverse lookup)
+      function findNodeForLine(fpath, lineNum) {
+        return nodes.findIndex((n) => n.file === fpath && n.lines && lineNum >= n.lines[0] && lineNum <= n.lines[1]);
+      }
+
+      const codeScrollEl = document.getElementById("codeScroll");
+      const activeFilePathEl = document.getElementById("activeFilePath");
+      const activeLineRangeEl = document.getElementById("activeLineRange");
+
+      function renderCode(scrollToHighlight = false) {
+        const fileObj = files[activeFile];
+        activeFilePathEl.textContent = activeFile || "-";
+        if (!fileObj) {
+          codeScrollEl.innerHTML = `<div style="padding:16px;color:var(--text-muted)">未找到文件内容</div>`;
+          return;
+        }
+        const activeNode = nodes[activeNodeIndex];
+        const hlRange = activeNode && activeNode.file === activeFile ? activeNode.lines : null;
+        activeLineRangeEl.textContent = hlRange ? `高亮第 ${hlRange[0]}–${hlRange[1]} 行` : "点击有标注的代码行可跳转对应节点";
+
+        const lines = fileObj.content.split("\n");
+        const frag = document.createDocumentFragment();
+        let firstHlEl = null;
+
+        lines.forEach((text, idx) => {
+          const lineNum = (fileObj.startLine || 1) + idx;
+          const isHl = hlRange && lineNum >= hlRange[0] && lineNum <= hlRange[1];
+          const mappedIdx = findNodeForLine(activeFile, lineNum);
+
+          const row = document.createElement("div");
+          row.className = "code-line" + (isHl ? " active" : "") + (mappedIdx >= 0 ? " has-node" : "");
+          row.dataset.line = lineNum;
+
+          const numSpan = document.createElement("span");
+          numSpan.className = "line-num";
+          numSpan.textContent = lineNum;
+
+          const txtSpan = document.createElement("span");
+          txtSpan.className = "line-text";
+          txtSpan.innerHTML = highlightLine(text);
+
+          row.appendChild(numSpan);
+          row.appendChild(txtSpan);
+
+          if (mappedIdx >= 0) {
+            row.title = `点击定位流程节点：${nodes[mappedIdx].title}`;
+            row.addEventListener("click", () => selectNode(mappedIdx, false));
+          }
+
+          if (isHl && !firstHlEl) firstHlEl = row;
+          frag.appendChild(row);
+        });
+
+        codeScrollEl.innerHTML = "";
+        codeScrollEl.appendChild(frag);
+
+        if (scrollToHighlight && firstHlEl) {
+          firstHlEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      // Flowchart Layout & Rendering
+      const NODE_W = 220;
+      const NODE_H = 68;
+      const GAP_X = 64;
+      const GAP_Y = 48;
+
+      const typeColors = {
+        entry: { fill: "var(--green-soft)", stroke: "var(--green)", label: "入口" },
+        process: { fill: "var(--accent-soft)", stroke: "var(--accent)", label: "处理" },
+        decision: { fill: "var(--amber-soft)", stroke: "var(--amber)", label: "分支" },
+        io: { fill: "var(--purple-soft)", stroke: "var(--purple)", label: "I/O" },
+        exit: { fill: "var(--rose-soft)", stroke: "var(--rose)", label: "输出" }
+      };
+
+      const nodePos = new Map();
+      nodes.forEach((n, idx) => {
+        const col = typeof n.col === "number" ? n.col : 0;
+        const row = typeof n.row === "number" ? n.row : idx;
+        const x = 40 + col * (NODE_W + GAP_X);
+        const y = 40 + row * (NODE_H + GAP_Y);
+        nodePos.set(n.id, { x, y, cx: x + NODE_W / 2, cy: y + NODE_H / 2 });
+      });
+
+      const svg = document.getElementById("flowSvg");
+      const viewport = document.getElementById("viewport");
+
+      function createSvgEl(tag, attrs = {}) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        return el;
+      }
+
+      function renderFlowchart() {
+        viewport.innerHTML = "";
+        const activeId = nodes[activeNodeIndex]?.id;
+
+        // Edges
+        edges.forEach((e) => {
+          const from = nodePos.get(e.from);
+          const to = nodePos.get(e.to);
+          if (!from || !to) return;
+
+          const isRel = e.from === activeId || e.to === activeId;
+          let x1 = from.cx, y1 = from.y + NODE_H;
+          let x2 = to.cx, y2 = to.y;
+          let d;
+
+          if (Math.abs(from.y - to.y) < 10) {
+            // Horizontal connection
+            const goRight = to.x >= from.x;
+            x1 = goRight ? from.x + NODE_W : from.x;
+            y1 = from.cy;
+            x2 = goRight ? to.x : to.x + NODE_W;
+            y2 = to.cy;
+            const mx = (x1 + x2) / 2;
+            d = `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+          } else if (to.y < from.y) {
+            // Back-edge (loop)
+            x1 = from.x + NODE_W;
+            y1 = from.cy;
+            x2 = to.x + NODE_W;
+            y2 = to.cy;
+            const bulge = Math.max(x1, x2) + 46;
+            d = `M ${x1} ${y1} C ${bulge} ${y1}, ${bulge} ${y2}, ${x2} ${y2}`;
+          } else {
+            const my = (y1 + y2) / 2;
+            d = `M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`;
+          }
+
+          const path = createSvgEl("path", {
+            d,
+            class: "edge-path" + (isRel ? " active" : ""),
+            "marker-end": isRel ? "url(#arrowActive)" : "url(#arrow)"
+          });
+          viewport.appendChild(path);
+
+          if (e.label) {
+            const lx = (x1 + x2) / 2 + (to.y < from.y ? 36 : 0);
+            const ly = (y1 + y2) / 2;
+            const w = Math.max(36, e.label.length * 10 + 14);
+            viewport.appendChild(createSvgEl("rect", {
+              x: lx - w / 2, y: ly - 10, width: w, height: 20, rx: 4, class: "edge-label-bg"
+            }));
+            const lbl = createSvgEl("text", { x: lx, y: ly, class: "edge-label" });
+            lbl.textContent = e.label;
+            viewport.appendChild(lbl);
+          }
+        });
+
+        // Nodes
+        nodes.forEach((n, idx) => {
+          const p = nodePos.get(n.id);
+          const tc = typeColors[n.type] || typeColors.process;
+          const g = createSvgEl("g", {
+            class: "node-group" + (idx === activeNodeIndex ? " active" : ""),
+            transform: `translate(${p.x}, ${p.y})`
+          });
+
+          g.appendChild(createSvgEl("rect", {
+            width: NODE_W, height: NODE_H, class: "node-card"
+          }));
+
+          // Step & type pill
+          const badge = createSvgEl("rect", {
+            x: 10, y: 10, width: 48, height: 18, rx: 4, fill: tc.fill
+          });
+          g.appendChild(badge);
+          const badgeTxt = createSvgEl("text", {
+            x: 34, y: 22.5, "text-anchor": "middle", fill: tc.stroke, class: "node-badge-text"
+          });
+          badgeTxt.textContent = `${idx + 1} · ${tc.label}`;
+          g.appendChild(badgeTxt);
+
+          // File:line hint
+          const locTxt = createSvgEl("text", {
+            x: NODE_W - 10, y: 22.5, "text-anchor": "end", class: "node-sub"
+          });
+          const shortFile = (n.file || "").split("/").pop();
+          locTxt.textContent = n.lines ? `${shortFile}:${n.lines[0]}` : shortFile;
+          g.appendChild(locTxt);
+
+          // Title (truncate cleanly)
+          const titleTxt = createSvgEl("text", { x: 10, y: 48, class: "node-title" });
+          const rawTitle = n.title || n.id;
+          titleTxt.textContent = rawTitle.length > 22 ? rawTitle.slice(0, 21) + "…" : rawTitle;
+          g.appendChild(titleTxt);
+
+          g.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            selectNode(idx, true);
+          });
+
+          viewport.appendChild(g);
+        });
+      }
+
+      // Pan & Zoom
+      let scale = 1, tx = 0, ty = 0;
+      function applyTransform() {
+        viewport.setAttribute("transform", `translate(${tx}, ${ty}) scale(${scale})`);
+      }
+
+      function fitView() {
+        if (!nodes.length) return;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodePos.forEach((p) => {
+          minX = Math.min(minX, p.x);
+          minY = Math.min(minY, p.y);
+          maxX = Math.max(maxX, p.x + NODE_W);
+          maxY = Math.max(maxY, p.y + NODE_H);
+        });
+        const rect = svg.getBoundingClientRect();
+        const pad = 36;
+        const bw = maxX - minX + pad * 2;
+        const bh = maxY - minY + pad * 2;
+        scale = Math.min(1.15, Math.max(0.35, Math.min(rect.width / bw, rect.height / bh)));
+        tx = (rect.width - (maxX - minX) * scale) / 2 - minX * scale;
+        ty = (rect.height - (maxY - minY) * scale) / 2 - minY * scale;
+        applyTransform();
+      }
+
+      let isPanning = false, startX = 0, startY = 0;
+      svg.addEventListener("mousedown", (e) => {
+        if (e.target.closest(".node-group")) return;
+        isPanning = true;
+        startX = e.clientX - tx;
+        startY = e.clientY - ty;
+        svg.classList.add("panning");
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!isPanning) return;
+        tx = e.clientX - startX;
+        ty = e.clientY - startY;
+        applyTransform();
+      });
+      window.addEventListener("mouseup", () => {
+        isPanning = false;
+        svg.classList.remove("panning");
+      });
+      svg.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        const rect = svg.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const nextScale = Math.min(2.2, Math.max(0.3, scale * factor));
+        tx = mx - (mx - tx) * (nextScale / scale);
+        ty = my - (my - ty) * (nextScale / scale);
+        scale = nextScale;
+        applyTransform();
+      }, { passive: false });
+
+      document.getElementById("zoomInBtn").addEventListener("click", () => {
+        scale = Math.min(2.2, scale * 1.2);
+        applyTransform();
+      });
+      document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        scale = Math.max(0.3, scale * 0.85);
+        applyTransform();
+      });
+      document.getElementById("fitBtn").addEventListener("click", fitView);
+
+      // Detail Panel
+      const detailWrapEl = document.getElementById("detailWrap");
+      function renderDetail() {
+        const n = nodes[activeNodeIndex];
+        if (!n) {
+          detailWrapEl.innerHTML = `<div style="color:var(--text-muted)">暂无节点</div>`;
+          return;
+        }
+        const loc = n.lines ? `${n.file} : L${n.lines[0]}-${n.lines[1]}` : n.file;
+        const symbolsHtml = (n.symbols && n.symbols.length)
+          ? `<div class="detail-section">
+               <div class="detail-label">关键符号 / 数据流</div>
+               <div class="chip-list">${n.symbols.map((s) => `<span class="chip">${escHtml(s)}</span>`).join("")}</div>
+             </div>`
+          : "";
+        const whyHtml = n.why
+          ? `<div class="detail-section">
+               <div class="detail-label">设计意图</div>
+               <div class="detail-body">${escHtml(n.why)}</div>
+             </div>`
+          : "";
+        const verifyHtml = n.verify
+          ? `<div class="verify-box"><strong>源码验证提示：</strong>${escHtml(n.verify)}</div>`
+          : "";
+
+        detailWrapEl.innerHTML = `
+          <div class="detail-header">
+            <h2 class="detail-title">${activeNodeIndex + 1}. ${escHtml(n.title || n.id)}</h2>
+            <button class="detail-loc" id="jumpCodeBtn" title="重新聚焦到左侧源码">${escHtml(loc)}</button>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">核心逻辑</div>
+            <div class="detail-body">${escHtml(n.summary || "")}</div>
+          </div>
+          ${whyHtml}
+          ${symbolsHtml}
+          ${verifyHtml}
+        `;
+
+        document.getElementById("jumpCodeBtn").addEventListener("click", () => {
+          activeFile = n.file;
+          renderTabs();
+          renderCode(true);
+        });
+      }
+
+      // Selection & Stepper
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const stepCounter = document.getElementById("stepCounter");
+
+      function selectNode(idx, scrollToCode = true) {
+        if (idx < 0 || idx >= nodes.length) return;
+        activeNodeIndex = idx;
+        const n = nodes[idx];
+        if (n.file && files[n.file]) {
+          activeFile = n.file;
+        }
+        stepCounter.textContent = `${idx + 1} / ${nodes.length}`;
+        prevBtn.disabled = idx === 0;
+        nextBtn.disabled = idx === nodes.length - 1;
+
+        renderTabs();
+        renderCode(scrollToCode);
+        renderFlowchart();
+        renderDetail();
+      }
+
+      prevBtn.addEventListener("click", () => selectNode(activeNodeIndex - 1, true));
+      nextBtn.addEventListener("click", () => selectNode(activeNodeIndex + 1, true));
+
+      window.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        if (e.key === "ArrowRight" || e.key === "j") selectNode(activeNodeIndex + 1, true);
+        if (e.key === "ArrowLeft" || e.key === "k") selectNode(activeNodeIndex - 1, true);
+      });
+
+      // Resizable split pane
+      const resizerV = document.getElementById("resizerV");
+      const leftPane = document.getElementById("leftPane");
+      const workspace = document.getElementById("workspace");
+      let draggingV = false;
+      resizerV.addEventListener("mousedown", () => {
+        draggingV = true;
+        resizerV.classList.add("dragging");
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!draggingV) return;
+        const rect = workspace.getBoundingClientRect();
+        const pct = Math.min(72, Math.max(25, ((e.clientX - rect.left) / rect.width) * 100));
+        leftPane.style.width = `${pct}%`;
+      });
+      window.addEventListener("mouseup", () => {
+        if (draggingV) {
+          draggingV = false;
+          resizerV.classList.remove("dragging");
+        }
+      });
+
+      // Initial render
+      if (nodes.length > 0) {
+        selectNode(0, true);
+      } else {
+        renderTabs();
+        renderCode(false);
+        renderDetail();
+      }
+      requestAnimationFrame(fitView);
+      window.addEventListener("resize", fitView);
+    })();
+  </script>
+</body>
+</html>
